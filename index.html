@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hashira Sensi</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#080808;color:#fff;min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:
+radial-gradient(circle at 15% 10%,#6e000033,transparent 30%),
+radial-gradient(circle at 90% 80%,#d6a30018,transparent 35%);pointer-events:none}
+.container{width:min(940px,92%);margin:auto;padding:35px 0 50px}
+header{text-align:center;margin-bottom:28px}
+.badge{display:inline-block;border:1px solid #e0ad26;color:#e0ad26;padding:7px 14px;border-radius:30px;font-size:12px;font-weight:bold;letter-spacing:2px}
+h1{font-size:clamp(42px,10vw,78px);margin:12px 0 4px;line-height:.9;letter-spacing:-3px}
+h1 span{color:#e5b52e}
+.subtitle{color:#aaa;margin:12px auto;max-width:620px}
+.card{background:linear-gradient(145deg,#151515,#0d0d0d);border:1px solid #292929;border-radius:22px;padding:25px;box-shadow:0 15px 50px #0008;margin-bottom:18px}
+label{display:block;font-size:13px;color:#bbb;font-weight:bold;margin-bottom:9px}
+input{width:100%;background:#090909;border:1px solid #343434;border-radius:13px;padding:15px;color:#fff;font-size:16px;outline:none}
+input:focus{border-color:#dcae27;box-shadow:0 0 0 3px #dcae2718}
+.profiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.profile{border:1px solid #333;background:#0b0b0b;color:#ddd;padding:15px;border-radius:14px;cursor:pointer;text-align:left;transition:.2s}
+.profile:hover{transform:translateY(-2px);border-color:#777}
+.profile.active{border-color:#e2b52d;background:linear-gradient(145deg,#241d09,#0b0b0b);box-shadow:0 0 22px #e2b52d17}
+.profile b{display:block;color:#fff;font-size:17px;margin-bottom:5px}
+.profile small{color:#999}
+button.generate{width:100%;border:0;border-radius:14px;padding:17px;margin-top:20px;background:linear-gradient(90deg,#b80000,#e4ad24);color:#fff;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 10px 30px #b8000033}
+button.generate:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.result{display:none}
+.result.show{display:block}
+.result-head{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}
+.result h2{margin:0}
+.device{color:#e2b52d;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:20px}
+.stat{background:#090909;border:1px solid #292929;border-radius:15px;padding:17px}
+.stat span{display:block;color:#888;font-size:12px;margin-bottom:7px}
+.stat strong{font-size:29px}
+.meter{height:6px;background:#242424;border-radius:10px;margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,#b50000,#e7b52e);border-radius:10px}
+.copy{border:1px solid #555;background:#171717;color:#fff;padding:12px 16px;border-radius:11px;cursor:pointer;font-weight:bold}
+.copy:hover{border-color:#e1b12b}
+.note{color:#888;font-size:12px;line-height:1.5;margin-top:17px}
+.footer{text-align:center;color:#555;font-size:12px;margin-top:25px}
+@media(max-width:600px){.profiles,.grid{grid-template-columns:1fr}.container{padding-top:24px}.card{padding:19px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div class="badge">GERADOR DE SENSIBILIDADE</div>
+  <h1>HASHIRA <span>SENSI</span></h1>
+  <p class="subtitle">Gere uma configuração de sensibilidade baseada no seu dispositivo e no estilo de mira que você prefere.</p>
+</header>
+
+<section class="card">
+  <label for="device">MODELO DO SEU DISPOSITIVO</label>
+  <input id="device" type="text" placeholder="Ex.: Galaxy A15, iPhone 13, Redmi Note 12 ou PC">
+
+  <label style="margin-top:20px">ESCOLHA O ESTILO</label>
+  <div class="profiles">
+    <button class="profile" data-mode="alta">
+      <b>⚡ Alta</b><small>Mais ágil e rápida para puxadas.</small>
+    </button>
+    <button class="profile active" data-mode="media">
+      <b>◈ Média</b><small>Equilíbrio entre agilidade e precisão.</small>
+    </button>
+    <button class="profile" data-mode="baixa">
+      <b>🎯 Baixa</b><small>Mais controle e precisão.</small>
+    </button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px">
+    <div>
+      <label for="ping">PING MÉDIO (MS)</label>
+      <input id="ping" type="number" min="1" max="999" value="40" placeholder="Ex.: 40">
+    </div>
+    <div>
+      <label>OPÇÃO DE DPI</label>
+      <button type="button" id="noDpiBtn" class="profile" style="width:100%;height:100%;margin:0;text-align:left">
+        <b id="dpiModeTitle">⚙️ Com DPI</b><small id="dpiModeText">Gerar DPI sugerida.</small>
+      </button>
+    </div>
+  </div>
+
+  <button class="generate" onclick="generate()">GERAR MINHA SENSI</button>
+</section>
+
+<section class="card result" id="result">
+  <div class="result-head">
+    <div>
+      <div style="font-size:12px;color:#888">CONFIGURAÇÃO GERADA PARA</div>
+      <h2 id="deviceName">Seu dispositivo</h2>
+      <div class="device" id="modeName">Sensi Média</div>
+    </div>
+    <button class="copy" onclick="copyConfig()">COPIAR</button>
+  </div>
+
+  <div class="grid" id="stats"></div>
+  <p class="note">A Hashira Sensi considera o modelo, o perfil, o ping médio e a opção de DPI escolhida. O resultado não altera automaticamente as configurações do Free Fire e pode precisar de pequenos ajustes de acordo com seu HUD, DPI e preferência.</p>
+</section>
+
+<div class="footer">HASHIRA SENSI • Configuração personalizada</div>
+</div>
+
+<script>
+let mode="media";
+let noDpi=false;
+
+const noDpiBtn=document.getElementById("noDpiBtn");
+noDpiBtn.addEventListener("click",()=>{
+  noDpi=!noDpi;
+  noDpiBtn.classList.toggle("active",noDpi);
+  document.getElementById("dpiModeTitle").textContent=noDpi?"🚫 Sem DPI":"⚙️ Com DPI";
+  document.getElementById("dpiModeText").textContent=noDpi
+    ?"Sensibilidade adaptada para jogar sem alterar DPI."
+    :"Gerar DPI sugerida.";
+});
+
+document.querySelectorAll(".profile").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".profile").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    mode=btn.dataset.mode;
+  });
+});
+
+function hash(str){
+  let h=0;
+  for(let i=0;i<str.length;i++) h=((h<<5)-h)+str.charCodeAt(i),h|=0;
+  return Math.abs(h);
+}
+
+function generate(){
+  const device=document.getElementById("device").value.trim();
+  if(!device){
+    document.getElementById("device").focus();
+    alert("Digite o modelo do seu dispositivo.");
+    return;
+  }
+
+  const h=hash(device.toLowerCase());
+  let ping=parseInt(document.getElementById("ping").value,10);
+  if(!Number.isFinite(ping)) ping=40;
+  ping=Math.max(1,Math.min(999,ping));
+
+  const base={alta:178,media:165,baixa:148}[mode];
+  const variation=(h%11)-5;
+
+  // Ajuste leve pelo ping: ping maior reduz um pouco a sensibilidade
+  // para priorizar controle; ping menor permite uma resposta mais ágil.
+  let pingAdjust = ping<=30 ? 3 : ping<=60 ? 0 : ping<=100 ? -3 : ping<=160 ? -6 : -9;
+
+  // Sem DPI usa uma base própria para não depender de alteração de DPI.
+  if(noDpi) pingAdjust += 2;
+
+  let geral=Math.max(120,Math.min(200,base+variation+pingAdjust));
+
+  const config={
+    "Geral":geral,
+    "Ponto Vermelho":Math.max(105,Math.min(195,geral-4+(h%7))),
+    "Mira 2x":Math.max(95,Math.min(190,geral-15+(h%9))),
+    "Mira 4x":Math.max(85,Math.min(180,geral-28+(h%8))),
+    "Mira AWM":Math.max(65,Math.min(160,geral-45+(h%10))),
+    "Olhadinha":Math.max(90,Math.min(180,geral-12+(h%8)))
+  };
+
+  const dpiBase={alta:510,media:460,baixa:410}[mode];
+  const dpi=Math.max(320,Math.min(650,dpiBase+((h%9)-4)*8+pingAdjust*2));
+  const buttonBase={alta:49,media:53,baixa:57}[mode];
+  const button=Math.max(42,Math.min(62,buttonBase+((h%7)-3)));
+
+  const dpiDisplay=noDpi ? "Sem DPI" : dpi;
+
+  document.getElementById("deviceName").textContent=device;
+  document.getElementById("modeName").textContent=
+    mode==="alta"?"Sensi Alta • Mais ágil":
+    mode==="baixa"?"Sensi Baixa • Mais precisão":"Sensi Média • Equilibrada";
+
+  const stats=document.getElementById("stats");
+  stats.innerHTML="";
+  Object.entries(config).forEach(([name,value])=>{
+    stats.innerHTML += `
+      <div class="stat">
+        <span>${name.toUpperCase()}</span>
+        <strong>${value}</strong>
+        <div class="meter"><i style="width:${Math.min(100,(value/2))}%"></i></div>
+      </div>`;
+  });
+
+  stats.innerHTML += `
+    <div class="stat">
+      <span>${noDpi ? "DPI" : "DPI SUGERIDA"}</span>
+      <strong>${dpiDisplay}</strong>
+      <div class="meter"><i style="width:${noDpi ? 18 : Math.min(100,(dpi/650)*100)}%"></i></div>
+    </div>
+    <div class="stat">
+      <span>TAMANHO DO BOTÃO DE ATIRAR</span>
+      <strong>${button}%</strong>
+      <div class="meter"><i style="width:${button}%"></i></div>
+    </div>
+    <div class="stat">
+      <span>PING MÉDIO CONSIDERADO</span>
+      <strong>${ping} ms</strong>
+      <div class="meter"><i style="width:${Math.min(100,(ping/200)*100)}%"></i></div>
+    </div>`;
+
+  document.getElementById("result").classList.add("show");
+  document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"});
+  window.currentConfig={device,mode,config,dpi,button,ping,noDpi};
+}
+
+function copyConfig(){
+  if(!window.currentConfig)return;
+  const c=window.currentConfig;
+  let text=`HASHIRA SENSI\nDispositivo: ${c.device}\nPerfil: ${c.mode.toUpperCase()}\n\n`;
+  Object.entries(c.config).forEach(([k,v])=>text+=`${k}: ${v}\n`);
+  text += `DPI: ${c.noDpi ? "SEM DPI" : c.dpi}\nTamanho do botão: ${c.button}%\nPing médio: ${c.ping} ms\n`;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.querySelector(".copy");
+    const old=b.textContent;
+    b.textContent="COPIADO ✓";
+    setTimeout(()=>b.textContent=old,1500);
+  });
+}
+</script>
+</body>
+</html>
